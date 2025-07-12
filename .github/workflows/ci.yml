@@ -149,8 +149,6 @@ jobs:
   build-matrix:
     name: Build Matrix
     runs-on: ${{ matrix.os }}
-    env:
-      CARGO_FEATURES: ${{ matrix.os == 'windows-latest' && 'bundled' }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -161,14 +159,18 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
 
+      - name: Add llvm path on Windows
+        if: matrix.os == 'windows-latest'
+        run: echo "C:\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
       - name: Build library
-        run: cargo build --verbose
+        run: cargo build  --features bundled --verbose
 
       - name: Build CLI
-        run: cargo build --bin monarch --verbose
+        run: cargo build --features bundled --bin monarch --verbose
 
       - name: Run basic tests
-        run: cargo test --verbose
+        run: cargo test --features bundled --verbose
 
   msrv:
     name: Minimum Supported Rust Version
