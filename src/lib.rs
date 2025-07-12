@@ -2,21 +2,22 @@ use std::{borrow::Cow, collections::BTreeMap, io};
 
 use camino::Utf8PathBuf;
 use rusqlite::Connection;
-use serde::Deserialize;
 
 type Migration = Cow<'static, str>;
 
 const VERSION_TABLE: &str = "monarch_db_schema_version";
 
 /// ConnectionConfiguration describes how to open a new Sqlite connection.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize))]
 pub struct ConnectionConfiguration {
     #[serde(default)]
     pub database: Option<Utf8PathBuf>,
 }
 
 /// MonarchConfiguration describes migrations stored in a directory and read at runtime.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize))]
 pub struct MonarchConfiguration {
     pub name: String,
     pub enable_foreign_keys: bool,

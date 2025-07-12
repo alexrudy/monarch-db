@@ -7,5 +7,9 @@ description = "A simple SQLite DB Migration system"
 [dependencies]
 camino = { version = "1", features = ["serde1"] }
 rusqlite = { version = "0.37" }
-serde = { version = "1", features = ["derive"] }
+serde = { version = "1", features = ["derive"], optional = true }
 tracing = "0.1"
+
+[features]
+default = []
+serde = ["dep:serde"]
