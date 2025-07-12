@@ -149,6 +149,8 @@ jobs:
   build-matrix:
     name: Build Matrix
     runs-on: ${{ matrix.os }}
+    env:
+      CARGO_FEATURES: ${{ matrix.os == 'windows-latest' && "bundled" }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -175,7 +177,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: "1.70" # Adjust based on your MSRV
+          toolchain: "1.87"
 
       - name: Check MSRV
         run: cargo check --all-features

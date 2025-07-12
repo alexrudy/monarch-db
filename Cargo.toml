@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 description = "A simple SQLite DB Migration system"
 license = "MIT"
+rust-version = "1.87"
 
 [dependencies]
 camino = { version = "1", features = ["serde1"] }
@@ -14,6 +15,7 @@ tracing = "0.1"
 [features]
 default = []
 serde = ["dep:serde"]
+bundled = ["rusqlite/bundled"]
 
 [[bin]]
 name = "monarch"
