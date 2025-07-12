@@ -1,0 +1,10 @@
+# Configuration for typos spell checker
+# See: https://github.com/crate-ci/typos
+
+[files]
+extend-exclude = [
+    "*.lock",
+    "target/",
+    "*.db",
+    "*.sqlite",
+]

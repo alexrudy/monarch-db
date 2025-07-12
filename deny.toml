@@ -1,0 +1,24 @@
+# Configuration for cargo-deny
+# See: https://embarkstudios.github.io/cargo-deny/
+
+[advisories]
+# The advisories table configures how the `cargo deny check advisories` command works
+yanked = "warn"
+
+[licenses]
+# The licenses table configures how the `cargo deny check licenses` command works
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Unicode-3.0",
+    "Zlib",
+]
+
+[bans]
+# The bans table configures how the `cargo deny check bans` command works
+multiple-versions = "warn"
+
+[sources]
+# The sources table configures how the `cargo deny check sources` command works
+unknown-registry = "warn"
+unknown-git = "warn"

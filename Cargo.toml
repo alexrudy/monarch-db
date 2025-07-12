@@ -3,6 +3,7 @@ name = "monarch-db"
 version = "0.1.0"
 edition = "2024"
 description = "A simple SQLite DB Migration system"
+license = "MIT"
 
 [dependencies]
 camino = { version = "1", features = ["serde1"] }
@@ -13,3 +14,10 @@ tracing = "0.1"
 [features]
 default = []
 serde = ["dep:serde"]
+
+[[bin]]
+name = "monarch"
+path = "src/bin/monarch.rs"
+
+[dev-dependencies]
+tempfile = "3.0"
