@@ -150,7 +150,7 @@ jobs:
     name: Build Matrix
     runs-on: ${{ matrix.os }}
     env:
-      CARGO_FEATURES: ${{ matrix.os == 'windows-latest' && "bundled" }}
+      CARGO_FEATURES: ${{ matrix.os == 'windows-latest' && 'bundled' }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
