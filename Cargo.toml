@@ -1,0 +1,11 @@
+[package]
+name = "monarch-db"
+version = "0.1.0"
+edition = "2024"
+description = "A simple SQLite DB Migration system"
+
+[dependencies]
+camino = { version = "1", features = ["serde1"] }
+rusqlite = { version = "0.37" }
+serde = { version = "1", features = ["derive"] }
+tracing = "0.1"
