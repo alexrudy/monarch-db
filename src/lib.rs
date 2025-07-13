@@ -184,7 +184,7 @@ impl MonarchDB {
     /// Returns a `rusqlite::Result<Connection>` with migrations applied on success.
     pub fn open_in_memory(&self) -> rusqlite::Result<Connection> {
         let connection = Connection::open_in_memory()?;
-        self.migrations(connection)
+        self.migrate(connection)
     }
 
     /// Creates a new MonarchDB instance from a configuration that loads migrations from disk.
@@ -265,7 +265,7 @@ impl MonarchDB {
         } else {
             Connection::open_in_memory()?
         };
-        self.migrations(connection)
+        self.migrate(connection)
     }
 
     /// Applies all necessary migrations to an existing database connection.
@@ -281,13 +281,24 @@ impl MonarchDB {
     /// # Returns
     ///
     /// Returns the connection with migrations applied on success.
-    pub fn migrations(&self, mut connection: Connection) -> rusqlite::Result<Connection> {
+    pub fn migrate(&self, mut connection: Connection) -> rusqlite::Result<Connection> {
         let migrations = Migrations {
             connection: &mut connection,
             monarch: self,
         };
         migrations.prepare()?;
         Ok(connection)
+    }
+
+    /// Create a migration manager for the given connection.
+    ///
+    /// This method initializes a new `Migrations` instance, which can be used to
+    /// apply migrations to the provided connection.
+    pub fn migrations<'c>(&'c self, connection: &'c mut Connection) -> Migrations<'c> {
+        Migrations {
+            connection,
+            monarch: self,
+        }
     }
 }
 
