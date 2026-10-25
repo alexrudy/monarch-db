@@ -100,7 +100,7 @@
 use std::{borrow::Cow, collections::BTreeMap, io};
 
 use camino::Utf8PathBuf;
-use rusqlite::Connection;
+use rusqlite::{Connection, TransactionBehavior};
 
 type Migration = Cow<'static, str>;
 
@@ -140,7 +140,6 @@ pub struct MonarchConfiguration {
 ///
 /// This configuration is used when all migrations are embedded in the binary
 /// at compile time, typically using `include_str!` or similar macros.
-/// This provides better performance and eliminates runtime file I/O.
 #[derive(Debug, Clone)]
 pub struct StaticMonarchConfiguration<const N: usize> {
     /// The name of the database schema, used for tracking migration versions.
@@ -183,8 +182,9 @@ impl MonarchDB {
     ///
     /// Returns a `rusqlite::Result<Connection>` with migrations applied on success.
     pub fn open_in_memory(&self) -> rusqlite::Result<Connection> {
-        let connection = Connection::open_in_memory()?;
-        self.migrate(connection)
+        let mut connection = Connection::open_in_memory()?;
+        self.migrate(&mut connection)?;
+        Ok(connection)
     }
 
     /// Creates a new MonarchDB instance from a configuration that loads migrations from disk.
@@ -260,12 +260,13 @@ impl MonarchDB {
         &self,
         configuration: &ConnectionConfiguration,
     ) -> rusqlite::Result<Connection> {
-        let connection = if let Some(path) = configuration.database.as_deref() {
+        let mut connection = if let Some(path) = configuration.database.as_deref() {
             Connection::open(path)?
         } else {
             Connection::open_in_memory()?
         };
-        self.migrate(connection)
+        self.migrate(&mut connection)?;
+        Ok(connection)
     }
 
     /// Applies all necessary migrations to an existing database connection.
@@ -281,13 +282,13 @@ impl MonarchDB {
     /// # Returns
     ///
     /// Returns the connection with migrations applied on success.
-    pub fn migrate(&self, mut connection: Connection) -> rusqlite::Result<Connection> {
+    pub fn migrate(&self, connection: &mut Connection) -> rusqlite::Result<()> {
         let migrations = Migrations {
-            connection: &mut connection,
+            connection,
             monarch: self,
         };
         migrations.prepare()?;
-        Ok(connection)
+        Ok(())
     }
 
     /// Create a migration manager for the given connection.
@@ -332,7 +333,9 @@ impl<'c> Migrations<'c> {
     }
 
     fn migrate(self) -> rusqlite::Result<()> {
-        let tx = self.connection.transaction()?;
+        let tx = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
         let mut version = select_schema_version(&tx, &self.monarch.name)?;
 
         while version < self.monarch.current_version() {
